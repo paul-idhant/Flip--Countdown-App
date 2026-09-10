@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#06070b">
+<meta name="description" content="Flip — a premium Spotify-powered cinematic flip-clock countdown.">
+<meta name="author" content="IFNOVA">
+<title>Flip — Cinematic Countdown</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='8' width='52' height='48' rx='10' fill='%2314171c'/%3E%3Crect x='6' y='31' width='52' height='2' fill='%23000'/%3E%3Ctext x='32' y='44' font-family='Arial,sans-serif' font-size='26' font-weight='bold' text-anchor='middle' fill='%23f5f2ea'%3E10%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ======== ATMOSPHERE (SpotifyBackground + ThemeEngine + Dust) ======== -->
+<div id="bg" aria-hidden="true">
+  <div class="bg-base"></div>
+  <div class="bg-art" id="artA"></div>
+  <div class="bg-art" id="artB"></div>
+  <div class="bg-ambient">
+    <div class="orb-field" id="fA"></div>
+    <div class="orb-field" id="fB"></div>
+  </div>
+  <canvas id="dust"></canvas>
+  <div class="bg-vignette"></div>
+  <div class="bg-grain"></div>
+</div>
+
+<!-- ======== TOP BAR ======== -->
+<header id="topbar">
+  <div class="brand">
+    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+      <rect x="2" y="4" width="26" height="22" rx="5" fill="#f5f2ea"/>
+      <rect x="2" y="14.4" width="26" height="1.2" fill="#14171c"/>
+      <circle cx="6.5" cy="15" r="1.4" fill="#14171c"/>
+      <circle cx="23.5" cy="15" r="1.4" fill="#14171c"/>
+    </svg>
+    <span class="brand-word">FLIP</span>
+    <span class="brand-sub">Cinematic Countdown</span>
+  </div>
+  <div class="top-actions">
+    <button class="pill-btn" id="switcherBtn" title="Switch countdown">
+      <span class="switcher-label">Countdowns</span><span class="chev">▾</span>
+    </button>
+    <button class="pill-btn" id="newBtn" title="New countdown (N)">+ <span>New</span></button>
+    <button class="pill-btn" id="spotifyBtn" title="Spotify settings">
+      <span class="dot"></span><span id="spotifyBtnLabel">Spotify</span>
+    </button>
+    <button class="icon-btn" id="fsBtn" title="Fullscreen focus mode (F)" aria-label="Fullscreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 4h-5M20 15v5h-5M9 20H4v-5"/></svg>
+    </button>
+    <button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7.5h16M4 16.5h16"/><circle cx="9.5" cy="7.5" r="2.3" fill="#06070b"/><circle cx="14.5" cy="16.5" r="2.3" fill="#06070b"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ======== COUNTDOWN SWITCHER (CountdownList) ======== -->
+<div id="switcherPanel" role="menu" aria-label="Countdowns">
+  <div class="sw-head"><span>Countdowns</span><button id="closeSwitcher" aria-label="Close">✕</button></div>
+  <div id="switcherList"></div>
+  <div class="sw-foot"><button class="btn btn-ghost btn-sm" id="newFromSwitcher">+ New countdown</button></div>
+</div>
+
+<!-- ======== STAGE ======== -->
+<main id="stage">
+  <!-- Empty state: shown until the first countdown exists -->
+  <section id="emptyState">
+    <div class="empty-mark">
+      <svg width="58" height="58" viewBox="0 0 30 30" aria-hidden="true">
+        <rect x="2" y="4" width="26" height="22" rx="5" fill="none" stroke="#f5f2ea" stroke-width="1.2" opacity="0.85"/>
+        <rect x="2" y="14.4" width="26" height="1.2" fill="#f5f2ea" opacity="0.85"/>
+        <circle cx="6.5" cy="15" r="1.4" fill="#d9b36c"/>
+        <circle cx="23.5" cy="15" r="1.4" fill="#d9b36c"/>
+      </svg>
+    </div>
+    <div class="empty-eyebrow">Flip · Cinematic Countdown</div>
+    <h1>Create your first countdown</h1>
+    <p>Name the moment. Pick the date.<br>Watch it arrive, one flip at a time.</p>
+    <button class="btn btn-primary" id="createFirstBtn">+ Create Countdown</button>
+    <div class="empty-hint">Press <kbd>N</kbd> anytime</div>
+    <div class="brand-line">by <b>IFNOVA</b> · similar: <a href="https://sign-bridge-plum-eta.vercel.app/" target="_blank" rel="noopener">Signbridge ↗</a></div>
+  </section>
+
+  <!-- Countdown centerpiece (CountdownDisplay) -->
+  <section id="countdownView" class="hidden">
+    <div class="eyebrow-wrap">
+      <span class="eyebrow">Until</span>
+      <span id="pausedBadge" class="hidden">Paused</span>
+    </div>
+    <h1 id="cdTitle"></h1>
+    <p id="cdDesc" class="hidden"></p>
+    <div class="flip-row" id="flipRow"></div>
+    <div class="target-line">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="5.5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>
+      <span id="targetLineText"></span>
+      <button class="mini-btn" id="pauseBtn">Pause</button>
+      <button class="mini-btn" id="editBtn">Edit</button>
+    </div>
+    <div id="completedBanner" class="hidden">
+      <div class="cb-eyebrow"></div>
+      <h2>IT&rsquo;S TIME.</h2>
+      <p id="completedSub"></p>
+      <div class="cb-actions">
+        <button class="btn btn-primary btn-sm" id="completedEdit">Set new date</button>
+        <button class="btn btn-ghost btn-sm" id="completedDismiss">Dismiss</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ======== BOTTOM BAR ======== -->
+<footer id="bottombar">
+  <div id="clockLine"></div>
+  <div id="nowPlaying"><!-- SpotifyNowPlaying renders here --></div>
+</footer>
+
+<!-- ======== CREATOR (CountdownCreator) ======== -->
+<div class="overlay hidden" id="creatorOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Countdown editor">
+    <div class="modal-eyebrow" id="creatorEyebrow">New countdown</div>
+    <h2 class="big-label">What are you counting down to?</h2>
+    <div class="field">
+      <input type="text" id="inTitle" maxlength="42" placeholder="THE BIG DAY" autocomplete="off">
+    </div>
+    <div class="field">
+      <label for="inDesc">Short description · optional</label>
+      <input type="text" id="inDesc" maxlength="90" placeholder="Time to lock in." autocomplete="off">
+    </div>
+    <div class="segmented two" id="creatorMode">
+      <button data-cmode="date" class="on">Date &amp; time</button>
+      <button data-cmode="duration">Duration</button>
+    </div>
+
+    <div id="paneDate">
+      <div class="field">
+        <label for="inDate">Date</label>
+        <input type="date" id="inDate">
+      </div>
+      <div class="field">
+        <label>Set time <span class="lab-hint">· 24-hour · tap +/− or type</span></label>
+        <div class="time-set">
+          <div class="stepper">
+            <span class="step-cap">Hours</span>
+            <button type="button" class="step-btn" data-target="inHH" data-step="1" aria-label="Increase hours">+</button>
+            <input id="inHH" class="step-val" inputmode="numeric" maxlength="2" value="00" aria-label="Hours" autocomplete="off">
+            <button type="button" class="step-btn" data-target="inHH" data-step="-1" aria-label="Decrease hours">−</button>
+          </div>
+          <span class="time-colon">:</span>
+          <div class="stepper">
+            <span class="step-cap">Minutes</span>
+            <button type="button" class="step-btn" data-target="inMM" data-step="5" aria-label="Increase minutes">+</button>
+            <input id="inMM" class="step-val" inputmode="numeric" maxlength="2" value="00" aria-label="Minutes" autocomplete="off">
+            <button type="button" class="step-btn" data-target="inMM" data-step="-5" aria-label="Decrease minutes">−</button>
+          </div>
+        </div>
+      </div>
+      <div class="chips">
+        <button class="chip" data-preset="newyear">New Year</button>
+        <button class="chip" data-preset="7d">In 7 days</button>
+        <button class="chip" data-preset="30d">In 30 days</button>
+      </div>
+      <div class="chips">
+        <button class="chip" data-time="09:00">Morning 9</button>
+        <button class="chip" data-time="12:00">Noon 12</button>
+        <button class="chip" data-time="18:00">Evening 6</button>
+        <button class="chip" data-time="00:00">Midnight</button>
+      </div>
+    </div>
+
+    <div id="paneDuration" class="hidden">
+      <div class="field">
+        <label>Set time <span class="lab-hint">· count down from right now</span></label>
+        <div class="dur-grid">
+          <div class="stepper">
+            <span class="step-cap">Days</span>
+            <button type="button" class="step-btn" data-target="dDays" data-step="1" aria-label="More days">+</button>
+            <input id="dDays" class="step-val" inputmode="numeric" maxlength="4" value="0" aria-label="Days" autocomplete="off">
+            <button type="button" class="step-btn" data-target="dDays" data-step="-1" aria-label="Fewer days">−</button>
+          </div>
+          <div class="stepper">
+            <span class="step-cap">Hours</span>
+            <button type="button" class="step-btn" data-target="dHours" data-step="1" aria-label="More hours">+</button>
+            <input id="dHours" class="step-val" inputmode="numeric" maxlength="3" value="0" aria-label="Hours" autocomplete="off">
+            <button type="button" class="step-btn" data-target="dHours" data-step="-1" aria-label="Fewer hours">−</button>
+          </div>
+          <div class="stepper">
+            <span class="step-cap">Mins</span>
+            <button type="button" class="step-btn" data-target="dMins" data-step="5" aria-label="More minutes">+</button>
+            <input id="dMins" class="step-val" inputmode="numeric" maxlength="3" value="0" aria-label="Minutes" autocomplete="off">
+            <button type="button" class="step-btn" data-target="dMins" data-step="-5" aria-label="Fewer minutes">−</button>
+          </div>
+          <div class="stepper">
+            <span class="step-cap">Secs</span>
+            <button type="button" class="step-btn" data-target="dSecs" data-step="10" aria-label="More seconds">+</button>
+            <input id="dSecs" class="step-val" inputmode="numeric" maxlength="3" value="0" aria-label="Seconds" autocomplete="off">
+            <button type="button" class="step-btn" data-target="dSecs" data-step="-10" aria-label="Fewer seconds">−</button>
+          </div>
+        </div>
+      </div>
+      <div class="chips">
+        <button class="chip" data-dur="600">10 min</button>
+        <button class="chip" data-dur="3600">1 hour</button>
+        <button class="chip" data-dur="86400">1 day</button>
+        <button class="chip" data-dur="604800">1 week</button>
+      </div>
+    </div>
+    <p class="ends-preview" id="endsPreview"></p>
+    <p class="tz-note" id="tzNote"></p>
+    <p class="form-error" id="formError"></p>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm hidden" id="deleteCreate">Delete</button>
+      <span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" id="cancelCreate">Cancel</button>
+      <button class="btn btn-primary btn-sm" id="saveCreate">Save countdown</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== SETTINGS ======== -->
+<aside id="settingsPanel" aria-label="Settings">
+  <div class="set-head"><h3>Settings</h3><button id="closeSettings" aria-label="Close">✕</button></div>
+
+  <div class="set-section">
+    <h4>Display</h4>
+    <div class="set-row">
+      <div class="lab"><b>Background intensity</b><span>How present the atmosphere feels</span></div>
+      <input type="range" id="bgIntensity" min="0" max="100" value="70">
+      <span class="range-val" id="bgVal">70</span>
+    </div>
+    <div class="set-row">
+      <div class="lab"><b>Animations</b><span>Flip motion &amp; ambient drift</span></div>
+      <label class="switch"><input type="checkbox" id="animToggle" checked><span class="slider"></span></label>
+    </div>
+    <div class="set-row">
+      <div class="lab"><b>Atmospheric dust</b><span>Barely-there floating particles</span></div>
+      <label class="switch"><input type="checkbox" id="dustToggle" checked><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <div class="set-section" id="setSpotify">
+    <h4>Spotify background</h4>
+    <div class="segmented">
+      <button data-spmode="off">Off</button>
+      <button data-spmode="demo">Demo</button>
+      <button data-spmode="real">Real</button>
+    </div>
+
+    <div id="demoConfig" class="hidden">
+      <p class="set-hint" id="demoNow" style="margin-top:0"></p>
+      <p class="set-hint">Demo simulates Spotify with generated artwork and colours. The countdown is always real.</p>
+      <div class="sp-btn-row"><button class="btn btn-ghost btn-sm" id="demoNext">Next track</button></div>
+    </div>
+
+    <div id="realConfig" class="hidden">
+      <div class="field">
+        <label for="spClientId">Spotify Client ID</label>
+        <input class="set-input" id="spClientId" placeholder="e.g. 8f3a…" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="field">
+        <label for="spRedirect">Redirect URI</label>
+        <input class="set-input" id="spRedirect" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="sp-btn-row">
+        <button class="btn btn-green btn-sm" id="spConnect">Connect with Spotify</button>
+        <button class="btn btn-ghost btn-sm hidden" id="spDisconnect">Disconnect</button>
+      </div>
+      <div class="sp-btn-row"><button class="btn btn-ghost btn-sm" id="copyRedirect">Copy redirect URI</button></div>
+      <p id="spAccount">Not connected.</p>
+      <div class="warn-box hidden" id="fileWarn">Real Spotify login needs <b>http(s)</b> — Spotify can&rsquo;t redirect back to a file. Open this app through a local server or hosted link instead.</div>
+      <p class="set-hint">Free setup: create an app at <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">developer.spotify.com/dashboard</a>, add the Redirect URI above to its settings, then paste the Client ID here. Login uses PKCE — no server, no secrets, tokens stay in your browser.</p>
+    </div>
+  </div>
+
+  <div class="set-section">
+    <h4>Data</h4>
+    <div class="set-row">
+      <div class="lab"><b>Stored locally</b><span>Countdowns live in this browser only</span></div>
+    </div>
+    <div class="sp-btn-row"><button class="btn btn-danger btn-sm" id="clearAll">Clear all data</button></div>
+  </div>
+
+  <div class="set-section">
+    <h4>About</h4>
+    <p class="set-hint" style="margin-top:0">FLIP is crafted by <b>IFNOVA</b>.<br>Similar: <a href="https://sign-bridge-plum-eta.vercel.app/" target="_blank" rel="noopener">Signbridge ↗</a></p>
+  </div>
+</aside>
+
+<button class="icon-btn hidden" id="zenExit" title="Exit focus mode (Esc)" aria-label="Exit focus mode" style="width:44px;height:44px">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+</button>
+
+<div id="toasts"></div>
+<noscript><div style="position:fixed;inset:0;display:grid;place-items:center;background:#06070b;color:#f5f2ea;z-index:99">Flip needs JavaScript to run.</div></noscript>
+
+<script src="js/core.js"></script>
+<script src="js/flip.js"></script>
+<script src="js/spotify.js"></script>
+<script src="js/background.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

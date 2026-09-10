@@ -1,0 +1,13 @@
+{
+  "name": "flip-cinematic-countdown",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Premium Spotify-powered cinematic flip-clock countdown. Zero dependencies, no build step.",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=14"
+  }
+}
