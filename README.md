@@ -2,8 +2,6 @@
 
 A focused web countdown built around one important moment. FLIP combines an animated split-flap clock, restrained visual themes, and an optional Spotify playlist in a responsive, distraction-free interface.
 
-[Developer portfolio](https://idhant-mu.vercel.app/) · [Felina](https://felina-one.vercel.app/)
-
 ## Highlights
 
 - One focused countdown at a time
