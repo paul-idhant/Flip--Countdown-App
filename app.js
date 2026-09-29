@@ -2,8 +2,9 @@
   'use strict';
   const $ = (s) => document.querySelector(s);
   const KEY = 'flip-single-v2';
-  const state = Object.assign({ countdown: null, playlist: '', mode: 'duration' }, load());
+  const state = Object.assign({ countdown: null, playlist: '', mode: 'duration', theme: 'original' }, load());
   let last = {};
+  let screen = 'home';
 
   function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
   function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
@@ -23,12 +24,24 @@
   function targetLabel(ts) {
     return new Intl.DateTimeFormat(undefined, { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }).format(new Date(ts));
   }
+  function applyTheme() {
+    document.documentElement.dataset.theme = state.theme === 'original' ? '' : state.theme;
+    document.querySelectorAll('.theme-choice').forEach(button => button.classList.toggle('selected', button.dataset.theme === state.theme));
+  }
+  function showApp(create = false) {
+    screen = 'app';
+    render();
+    if (create || !state.countdown) openSetup(false);
+  }
+  function showHome() { screen = 'home'; render(); }
   function render() {
     const cd = state.countdown;
-    $('#welcome').classList.toggle('hidden', !!cd);
-    $('#countdown').classList.toggle('hidden', !cd);
-    $('#editBtn').classList.toggle('hidden', !cd);
-    if (!cd) return;
+    $('#home').classList.toggle('hidden', screen !== 'home');
+    $('#welcome').classList.toggle('hidden', screen !== 'app' || !!cd);
+    $('#countdown').classList.toggle('hidden', screen !== 'app' || !cd);
+    $('#editBtn').classList.toggle('hidden', screen !== 'app' || !cd);
+    $('#homeBtn').classList.toggle('hidden', screen === 'home');
+    if (!cd || screen !== 'app') return;
     $('#title').textContent = cd.title;
     $('#description').textContent = cd.description || '';
     $('#description').classList.toggle('hidden', !cd.description);
@@ -102,6 +115,9 @@
   });
   $('#removePlaylist').onclick = () => { state.playlist = ''; save(); renderPlaylist(); toast('Playlist removed'); };
   $('#startBtn').onclick = () => openSetup(false);
+  $('#enterBtn').onclick = () => showApp(false);
+  $('#homeCreateBtn').onclick = () => showApp(true);
+  $('#homeBtn').onclick = showHome;
   $('#editBtn').onclick = () => openSetup(true);
   $('#againBtn').onclick = () => openSetup(false);
   $('#resetBtn').onclick = () => { if (confirm('Clear this countdown?')) { state.countdown = null; save(); last = {}; render(); } };
@@ -109,11 +125,14 @@
   document.querySelectorAll('[data-mode]').forEach(b => b.onclick = () => setMode(b.dataset.mode));
   document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $('#' + b.dataset.close).classList.remove('open'));
   $('#musicBtn').onclick = $('#footerMusic').onclick = openPlayer;
+  $('#settingsBtn').onclick = () => $('#settingsPanel').classList.add('open');
+  document.querySelectorAll('.theme-choice').forEach(button => button.onclick = () => {
+    state.theme = button.dataset.theme; save(); applyTheme(); toast(`${button.querySelector('b').textContent} theme applied`);
+  });
   $('#fullBtn').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
   $('#setupOverlay').onclick = (e) => { if (e.target.id === 'setupOverlay' && state.countdown) closeSetup(); };
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeSetup(); $('#playerPanel').classList.remove('open'); } if (e.key.toLowerCase() === 'f' && !/input|textarea/i.test(e.target.tagName)) $('#fullBtn').click(); });
 
-  render(); renderPlaylist(); updateClock();
+  applyTheme(); render(); renderPlaylist(); updateClock();
   setInterval(() => { render(); updateClock(); }, 1000);
-  if (!state.countdown) setTimeout(() => openSetup(false), 500);
 })();

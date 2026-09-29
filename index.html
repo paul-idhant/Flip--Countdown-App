@@ -17,14 +17,33 @@
       <b>FLIP</b><span>Cinematic Countdown</span>
     </a>
     <div class="actions">
+      <button class="pill" id="homeBtn">Home</button>
       <button class="pill" id="musicBtn"><span class="spotify-dot"></span> Playlist</button>
       <button class="pill" id="editBtn">Edit timer</button>
+      <button class="icon" id="settingsBtn" aria-label="Open settings" title="Settings">☷</button>
       <button class="icon" id="fullBtn" aria-label="Toggle fullscreen" title="Fullscreen">⌗</button>
     </div>
   </header>
 
   <main>
-    <section id="welcome" class="welcome">
+    <section id="home" class="home">
+      <div class="home-copy">
+        <p class="eyebrow">A CINEMATIC COUNTDOWN</p>
+        <h1>Time, given<br>a little gravity.</h1>
+        <p class="home-intro">FLIP turns one approaching moment into a quiet, focused ritual. Set a duration or date, pair it with a Spotify playlist, and watch time move one frame at a time.</p>
+        <div class="home-actions"><button class="primary" id="enterBtn">Open FLIP</button><button class="secondary" id="homeCreateBtn">Create countdown</button></div>
+      </div>
+      <div class="home-preview" aria-hidden="true"><span>FLIP / 01</span><div class="preview-card">08<i></i></div><p>HOURS REMAINING</p></div>
+      <div class="makers">
+        <p class="eyebrow">DEVELOPERS</p>
+        <div class="maker-links">
+          <a href="https://idhant-mu.vercel.app/" target="_blank" rel="noopener"><span>Portfolio</span><b>Idhant</b><i>↗</i></a>
+          <a href="https://felina-one.vercel.app/" target="_blank" rel="noopener"><span>Featured work</span><b>Felina</b><i>↗</i></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="welcome" class="welcome hidden">
       <div class="mini-logo">◫</div>
       <p class="eyebrow">ONE MOMENT · ONE COUNTDOWN</p>
       <h1>What are you<br>looking forward to?</h1>
@@ -41,6 +60,17 @@
       <div id="complete" class="complete hidden"><span>COUNTDOWN COMPLETE</span><b>IT’S TIME.</b><button class="primary" id="againBtn">Set another</button></div>
     </section>
   </main>
+
+  <aside id="settingsPanel" class="player-panel settings-panel" aria-label="Appearance settings">
+    <div class="panel-head"><div><span class="eyebrow">APPEARANCE</span><h2>Colour theme</h2></div><button class="close" data-close="settingsPanel">×</button></div>
+    <p class="muted">Choose a considered palette for the entire FLIP experience.</p>
+    <div class="theme-list" id="themeList">
+      <button class="theme-choice" data-theme="original"><span class="theme-swatch original"><i></i><i></i><i></i></span><span><b>Original</b><small>The existing midnight atmosphere</small></span><em>✓</em></button>
+      <button class="theme-choice" data-theme="tobacco"><span class="theme-swatch tobacco"><i></i><i></i><i></i></span><span><b>Tobacco</b><small>Leather, bronze and 35mm shadow</small></span><em>✓</em></button>
+      <button class="theme-choice" data-theme="newsprint"><span class="theme-swatch newsprint"><i></i><i></i><i></i></span><span><b>Newsprint</b><small>Ivory paper and restrained ink</small></span><em>✓</em></button>
+      <button class="theme-choice" data-theme="porcelain"><span class="theme-swatch porcelain"><i></i><i></i><i></i></span><span><b>Porcelain</b><small>Cool paper and faded oxblood</small></span><em>✓</em></button>
+    </div>
+  </aside>
 
   <aside id="playerPanel" class="player-panel" aria-label="Spotify playlist">
     <div class="panel-head"><div><span class="eyebrow">SOUNDTRACK</span><h2>Spotify playlist</h2></div><button class="close" data-close="playerPanel">×</button></div>

@@ -12,9 +12,11 @@ Open `http://localhost:8000` (or the URL printed by the server).
 
 ## Features
 
+- Editorial home page with developer links
 - Exactly one locally saved countdown
 - Duration or target date/time setup
 - Animated split-flap display
+- Original theme plus Tobacco, Newsprint, and Porcelain themes
 - Paste a Spotify playlist URL to add Spotify's official embedded player
 - Responsive layout, keyboard shortcuts, fullscreen, and reduced-motion support
 
