@@ -25,6 +25,8 @@
     return new Intl.DateTimeFormat(undefined, { weekday:'long', day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }).format(new Date(ts));
   }
   function applyTheme() {
+    if (state.theme === 'newsprint') state.theme = 'gallery';
+    if (state.theme === 'porcelain') state.theme = 'champagne';
     document.documentElement.dataset.theme = state.theme === 'original' ? '' : state.theme;
     document.querySelectorAll('.theme-choice').forEach(button => button.classList.toggle('selected', button.dataset.theme === state.theme));
   }
@@ -36,6 +38,7 @@
   function showHome() { screen = 'home'; render(); }
   function render() {
     const cd = state.countdown;
+    document.body.classList.toggle('countdown-active', screen === 'app' && !!cd);
     $('#home').classList.toggle('hidden', screen !== 'home');
     $('#welcome').classList.toggle('hidden', screen !== 'app' || !!cd);
     $('#countdown').classList.toggle('hidden', screen !== 'app' || !cd);
@@ -107,6 +110,9 @@
     }
     state.countdown = { title, description: $('#inputDescription').value.trim(), target };
     save(); closeSetup(); last = {}; render(); toast('Countdown started');
+    if (matchMedia('(max-width: 900px)').matches) {
+      try { screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(() => {}); } catch {}
+    }
   });
   $('#playlistForm').addEventListener('submit', (e) => {
     e.preventDefault(); const value = $('#playlistUrl').value.trim();
