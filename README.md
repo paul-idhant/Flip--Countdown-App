@@ -16,7 +16,7 @@ Open `http://localhost:8000` (or the URL printed by the server).
 - Exactly one locally saved countdown
 - Duration or target date/time setup
 - Animated split-flap display
-- Original theme plus Tobacco, Gallery, and Champagne themes
+- Original theme plus Tobacco and Gallery themes
 - Paste a Spotify playlist URL to add Spotify's official embedded player
 - Responsive layout, keyboard shortcuts, fullscreen, and reduced-motion support
 

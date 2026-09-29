@@ -26,7 +26,7 @@
   }
   function applyTheme() {
     if (state.theme === 'newsprint') state.theme = 'gallery';
-    if (state.theme === 'porcelain') state.theme = 'champagne';
+    if (state.theme === 'porcelain' || state.theme === 'champagne') state.theme = 'gallery';
     document.documentElement.dataset.theme = state.theme === 'original' ? '' : state.theme;
     document.querySelectorAll('.theme-choice').forEach(button => button.classList.toggle('selected', button.dataset.theme === state.theme));
   }
