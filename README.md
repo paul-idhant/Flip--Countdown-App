@@ -75,4 +75,3 @@ FLIP has no backend, analytics, account system, or tracking scripts. Countdown s
 Designed and developed by **[paul-idhant](https://github.com/paul-idhant)**.
 
 - [idhant-mu.vercel.app](https://idhant-mu.vercel.app/)
-- [felina-one.vercel.app](https://felina-one.vercel.app/)
